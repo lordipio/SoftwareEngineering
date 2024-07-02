@@ -22,7 +22,7 @@ class Person:
 
         command = int(input())
 
-        self.wallet = command
+        self.wallet += command
 
         df = pd.read_excel(fileName)
 
@@ -114,7 +114,6 @@ while True:
 
         while userCanEnter:
 
-            print('You can change your address by typing (Change Address).')
 
             print('Do you want to charge your wallet? (yes/no)')
 
@@ -124,6 +123,7 @@ while True:
                 person.UpdateWallet('UsersInfo.xlsx')
 
 
+            print('You can change your address by typing (Change Address). Type something else to continue.')
 
             command = str(input()).lower()
 
