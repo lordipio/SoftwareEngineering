@@ -255,6 +255,11 @@ class User:
 # ////////////////////////////////////////////////////////
 
     def remove_product(self, product_id) -> bool:
+
+        self.shopping_cart.products_id = [float(x) for x in self.shopping_cart.products_id]
+
+        self.shopping_cart.products_id = [int(x) for x in self.shopping_cart.products_id]
+
         if product_id not in self.shopping_cart.products_id:
             print('The product is not in your shopping cart!\n')
             return False
@@ -842,16 +847,74 @@ class OnlineShopUI:
 # ////////////////////////////////////////////////////////
 
     def remove_product_screen(self):
+
         self.clear_screen()
 
-        tk.Label(self.root, text="Remove Product from Cart", font=("Helvetica", 16)).pack(pady=10)
+        # Resize the window to make it bigger
+        self.root.geometry("800x600")
 
-        tk.Label(self.root, text="Product ID").pack(pady=10)
-        self.remove_product_id_entry = tk.Entry(self.root)
-        self.remove_product_id_entry.pack()
+        # Create a frame for the remove product screen
+        remove_frame = tk.Frame(self.root, bg="#F0F0F0", bd=2, relief=tk.GROOVE)
+        remove_frame.pack(pady=20, padx=20, fill=tk.BOTH, expand=True)
 
-        tk.Button(self.root, text="Remove", command=self.remove_product).pack(pady=10)
-        tk.Button(self.root, text="Back", command=self.logged_in_menu).pack(pady=10)
+        tk.Label(remove_frame, text="Remove Product from Cart", font=("Helvetica", 16)).pack(pady=10)
+
+        tk.Label(remove_frame, text="Product ID", font=("Helvetica", 14), bg="#F0F0F0").pack(pady=5)
+        self.remove_product_id_entry = tk.Entry(remove_frame, font=("Helvetica", 14), bd=2, relief=tk.SUNKEN)
+        self.remove_product_id_entry.pack(pady=5)
+
+        button_style = {"font": ("Helvetica", 14), "bg": "#4CAF50", "fg": "#FFFFFF", "relief": tk.RAISED, "bd": 2, "padx": 10, "pady": 5}
+
+        tk.Button(remove_frame, text="Remove", command=self.remove_product, **button_style).pack(pady=10)
+    
+        # Add a scrollable frame to display all products in the user's cart
+        cart_products_frame = tk.Frame(remove_frame, bg="#F0F0F0", bd=2, relief=tk.GROOVE)
+        cart_products_frame.pack(pady=10, padx=10, fill=tk.BOTH, expand=True)
+    
+        canvas = tk.Canvas(cart_products_frame, bg="#F0F0F0")
+        scrollbar = tk.Scrollbar(cart_products_frame, orient="vertical", command=canvas.yview)
+        scrollable_frame = tk.Frame(canvas, bg="#F0F0F0")
+
+        scrollable_frame.bind(
+            "<Configure>",
+            lambda e: canvas.configure(
+                scrollregion=canvas.bbox("all")
+            )
+        )
+
+        canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
+        canvas.configure(yscrollcommand=scrollbar.set)
+
+        for product_id in self.system.logged_in_user.shopping_cart.products_id:
+            product = self.system.logged_in_user.find_product(product_id)
+            if product:
+                product_frame = tk.Frame(scrollable_frame, bg="#FFFFFF", bd=1, relief=tk.SOLID)
+                product_frame.pack(fill=tk.X, pady=5, padx=5)
+
+                product_info = f"ID: {product.product_id}, Name: {product.product_name}, Price: ${product.product_price:.2f}, Type: {product.product_type}, Rate: {product.product_rate}"
+                tk.Label(product_frame, text=product_info, font=("Helvetica", 12), bg="#FFFFFF").pack(side=tk.LEFT, padx=10)
+
+                remove_button = tk.Button(product_frame, text="Remove from Cart", font=("Helvetica", 12), bg="#FF0000", fg="#FFFFFF",
+                                          command=lambda p=product: self.remove_product_directly(p.product_id))
+                remove_button.pack(side=tk.RIGHT, padx=10)
+
+        canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+        tk.Button(remove_frame, text="Back", command=self.logged_in_menu, **button_style).pack(pady=10)
+
+# ////////////////////////////////////////////////////////
+
+    def remove_product_directly(self, product_id):
+        product_id = int(float(product_id))
+        if product_id:
+            print(product_id)
+            success = self.system.logged_in_user.remove_product(product_id)
+            if success:
+                messagebox.showinfo("Success", "Product removed from cart")
+                self.remove_product_screen()  # Refresh the screen to update the product list
+            else:
+                messagebox.showerror("Error", "Product not found in cart")
 
 # ////////////////////////////////////////////////////////
 
