@@ -657,6 +657,7 @@ class OnlineShopUI:
     def search_product_screen(self):
         self.clear_screen()
 
+        # Create a frame for the search product screen
         search_frame = tk.Frame(self.root, bg="#F0F0F0", bd=2, relief=tk.GROOVE)
         search_frame.pack(pady=20, padx=20, fill=tk.BOTH, expand=True)
 
@@ -669,7 +670,42 @@ class OnlineShopUI:
         button_style = {"font": ("Helvetica", 14), "bg": "#4CAF50", "fg": "#FFFFFF", "relief": tk.RAISED, "bd": 2, "padx": 10, "pady": 5}
 
         tk.Button(search_frame, text="Search", command=self.search_product, **button_style).pack(pady=10)
+        
+        # Add a scrollable frame to display all available products
+        available_products_frame = tk.Frame(search_frame, bg="#F0F0F0", bd=2, relief=tk.GROOVE)
+        available_products_frame.pack(pady=10, padx=10, fill=tk.BOTH, expand=True)
+        
+        canvas = tk.Canvas(available_products_frame, bg="#F0F0F0")
+        scrollbar = tk.Scrollbar(available_products_frame, orient="vertical", command=canvas.yview)
+        scrollable_frame = tk.Frame(canvas, bg="#F0F0F0")
+
+        scrollable_frame.bind(
+            "<Configure>",
+            lambda e: canvas.configure(
+                scrollregion=canvas.bbox("all")
+            )
+        )
+
+        canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
+        canvas.configure(yscrollcommand=scrollbar.set)
+
+        for product in self.system.products:
+            if product.product_availability:
+                product_frame = tk.Frame(scrollable_frame, bg="#FFFFFF", bd=1, relief=tk.SOLID)
+                product_frame.pack(fill=tk.X, pady=5, padx=5)
+
+                product_info = f"ID: {product.product_id}, Name: {product.product_name}, Price: ${product.product_price:.2f}, Type: {product.product_type}, Rate: {product.product_rate}"
+                tk.Label(product_frame, text=product_info, font=("Helvetica", 12), bg="#FFFFFF").pack(side=tk.LEFT, padx=10)
+
+                add_button = tk.Button(product_frame, text="Add to Cart", font=("Helvetica", 12), bg="#4CAF50", fg="#FFFFFF",
+                                        command=lambda p=product: self.add_to_cart(p))
+                add_button.pack(side=tk.RIGHT, padx=10)
+
+        canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
         tk.Button(search_frame, text="Back", command=self.logged_in_menu, **button_style).pack(pady=10)
+
 
 # ////////////////////////////////////////////////////////
 
