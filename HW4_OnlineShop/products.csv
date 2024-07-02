@@ -1,0 +1,83 @@
+ID,Name,Type,Price,Is_available,Rate
+1,Python Programming Guide,Book,29.99,False,4.5
+2,Learn Java in 21 Days,Book,24.99,False,4.3
+3,The Great Gatsby,Book,12.99,False,4.7
+4,To Kill a Mockingbird,Book,10.99,True,4.6
+5,Harry Potter and the Sorcerer's Stone,Book,15.99,False,4.8
+6,1984,Book,11.99,False,4.5
+7,The Catcher in the Rye,Book,9.99,False,4.4
+8,The Alchemist,Book,14.99,False,4.9
+9,The Hunger Games,Book,13.99,True,4.6
+10,Pride and Prejudice,Book,10.99,True,4.7
+11,War and Peace,Book,18.99,False,4.2
+12,The Lord of the Rings,Book,22.99,False,4.8
+13,The Hobbit,Book,16.99,False,4.7
+14,Game of Thrones,Book,19.99,True,4.6
+15,The Da Vinci Code,Book,11.99,True,4.5
+16,Think and Grow Rich,Book,9.99,True,4.4
+17,The Power of Now,Book,14.99,True,4.9
+18,How to Win Friends and Influence People,Book,12.99,True,4.6
+19,The Lean Startup,Book,17.99,True,4.7
+20,The Art of War,Book,10.99,True,4.5
+21,Apple iPhone 12 Pro,Mobile Phone,999.99,True,4.8
+22,Samsung Galaxy S21 Ultra,Mobile Phone,1199.99,True,4.9
+23,Google Pixel 5,Mobile Phone,899.99,True,4.7
+24,OnePlus 9 Pro,Mobile Phone,899.99,True,4.6
+25,Xiaomi Mi 11,Mobile Phone,799.99,True,4.5
+26,Huawei P40 Pro,Mobile Phone,899.99,False,4.3
+27,BlackBerry Key2,Mobile Phone,599.99,False,4.0
+28,Nokia 8.3,Mobile Phone,699.99,True,4.2
+29,"Apple MacBook Pro 13""",Clothing,1499.99,True,4.8
+30,Dell XPS 15,Clothing,1699.99,True,4.9
+31,HP Spectre x360,Clothing,1299.99,True,4.7
+32,Lenovo ThinkPad X1 Carbon,Clothing,1399.99,FALSE,4.6
+33,Asus ZenBook Pro Duo,Clothing,1999.99,FALSE,4.5
+34,Microsoft Surface Laptop 4,Clothing,1299.99,True,4.4
+35,Sony Xperia 1 II,Mobile Phone,1099.99,True,4.9
+36,LG V60 ThinQ,Mobile Phone,899.99,True,4.7
+37,Google Pixel 4a,Mobile Phone,499.99,True,4.6
+38,OnePlus Nord,Mobile Phone,499.99,True,4.5
+39,Xiaomi Mi 10T Pro,Mobile Phone,699.99,True,4.4
+40,Huawei P30 Pro,Mobile Phone,699.99,False,4.2
+41,Apple AirPods Pro,Toys,249.99,True,4.9
+42,Samsung Galaxy Buds Pro,Toys,199.99,True,4.8
+43,Sony WH-1000XM4,Toys,349.99,FALSE,4.7
+44,Bose QuietComfort 35 II,Toys,299.99,FALSE,4.6
+45,Jabra Elite 85t,Toys,229.99,True,4.5
+46,Google Pixel Buds 2,Toys,179.99,True,4.4
+47,Sennheiser Momentum True Wireless 2,Toys,299.99,True,4.3
+48,JBL Free X,Toys,99.99,True,4.2
+49,Beats Powerbeats Pro,Toys,199.99,True,4.1
+50,Anker Soundcore Liberty Air 2 Pro,Toys,129.99,True,4.0
+51,Apple,Fruits,1.99,True,4.8
+52,Banana,Fruits,0.99,True,4.5
+53,Orange,Fruits,1.49,True,4.6
+54,Grape,Fruits,2.99,True,4.7
+55,Strawberry,Fruits,3.49,True,4.9
+56,Pineapple,Fruits,2.49,True,4.6
+57,Apple Watch Series 7,Watches,399.99,True,4.8
+58,Samsung Galaxy Watch 4,Watches,349.99,True,4.7
+59,Fitbit Versa 3,Watches,229.99,True,4.6
+60,Garmin Forerunner 945,Watches,549.99,True,4.9
+61,KitchenAid Stand Mixer,Kitchen Accessories,299.99,True,4.8
+62,Instant Pot Duo,Kitchen Accessories,129.99,True,4.7
+63,Cuisinart Food Processor,Kitchen Accessories,149.99,True,4.6
+64,Nespresso VertuoPlus,Kitchen Accessories,179.99,True,4.5
+65,Lodge Cast Iron Skillet,Kitchen Accessories,24.99,True,4.4
+66,OXO Good Grips Mixing Bowl Set,Kitchen Accessories,49.99,True,4.3
+67,Apple,Fruits,1.99,True,4.8
+68,Banana,Fruits,0.99,True,4.5
+69,Orange,Fruits,1.49,True,4.6
+70,Grape,Fruits,2.99,True,4.7
+71,Strawberry,Fruits,3.49,True,4.9
+72,Pineapple,Fruits,2.49,True,4.6
+73,Apple Watch Series 7,Watches,399.99,True,4.8
+74,Samsung Galaxy Watch 4,Watches,349.99,True,4.7
+75,Fitbit Versa 3,Watches,229.99,True,4.6
+76,Garmin Forerunner 945,Watches,549.99,True,4.9
+77,KitchenAid Stand Mixer,Kitchen Accessories,299.99,True,4.8
+78,Instant Pot Duo,Kitchen Accessories,129.99,True,4.7
+79,Cuisinart Food Processor,Kitchen Accessories,149.99,True,4.6
+80,Nespresso VertuoPlus,Kitchen Accessories,179.99,True,4.5
+81,Lodge Cast Iron Skillet,Kitchen Accessories,24.99,True,4.4
+82,OXO Good Grips Mixing Bowl Set,Kitchen Accessories,49.99,True,4.3
