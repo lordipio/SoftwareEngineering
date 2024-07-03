@@ -1,5 +1,6 @@
 
 # Importing ----------------------------------------------------------------
+from unittest import registerResult
 import pandas as pd
 
 import os
@@ -71,7 +72,9 @@ class ShoppingCart():
 
 # Create User Class --------------------------------------------------------
 class User:
-    def __init__(self, user_name : str, user_password : str, wallet_balance : float, shopping_cart : ShoppingCart):
+    def __init__(self, user_name : str, user_password : str, wallet_balance : float, shopping_cart : ShoppingCart, address : str, age : int):
+        self.user_age = age
+        self.user_address = address
         self.file_name = 'UsersData.csv'
         self.wallet_balance = wallet_balance
         self.user_name = user_name
@@ -116,8 +119,8 @@ class User:
 # ////////////////////////////////////////////////////////
 
     def proceed_cart(self) -> bool:
-
         global products
+
         proceeded_cart = False
         cart_products = []
         cart_total_price = 0
@@ -217,6 +220,8 @@ class User:
 
         if self.user_name in df['user_name'].values:
             df.loc[df['user_name'] == self.user_name, 'wallet_balance'] = self.wallet_balance
+            df.loc[df['user_name'] == self.user_name, 'user_age'] = self.user_age
+            df.loc[df['user_name'] == self.user_name, 'user_address'] = self.user_address
             df.loc[df['user_name'] == self.user_name, 'shopping_cart_products_id'] = ','.join(map(str, self.shopping_cart.products_id))
             df.to_csv(self.file_name, index=False)
 
@@ -248,7 +253,6 @@ class User:
             print(e.message)
             return
 
-
         else:
             return founded_product
 
@@ -268,6 +272,11 @@ class User:
         self.__update_users_data_csv()
         print('The product removed successfully!\n')
         return True
+
+# ////////////////////////////////////////////////////////
+    def change_address(self, new_address):
+        self.user_address = new_address
+        self.__update_users_data_csv()
 
 #  -------------------------------------------------------------------------
 
@@ -292,7 +301,7 @@ class System:
 # ////////////////////////////////////////////////////////
 
     def __create_users_data_csv(self) -> pd.DataFrame:
-        columns = ['user_name', 'user_password', 'wallet_balance', 'shopping_cart_products_id']
+        columns = ['user_name', 'user_password', 'wallet_balance', 'shopping_cart_products_id', 'user_age', 'user_address']
         df = pd.DataFrame(columns=columns)
         df.to_csv(self.file_name, index=False)
 
@@ -306,9 +315,17 @@ class System:
             user_name = row['user_name']
             user_password = row['user_password']
             wallet_balance = row['wallet_balance']
+            
             shopping_cart_products_id = str(row['shopping_cart_products_id']).split(',')
             shopping_cart = ShoppingCart(shopping_cart_products_id)
-            user = User(user_name, user_password, wallet_balance, shopping_cart)
+            
+            wallet_balance = row['wallet_balance']
+
+            user_age = row['user_age']
+
+            user_address = row['user_address']
+
+            user = User(user_name, user_password, wallet_balance, shopping_cart, user_address, user_age)
             self.users.append(user)
 
 # ////////////////////////////////////////////////////////
@@ -347,7 +364,12 @@ class System:
                 continue
 
             user_password = input('Enter password: ')
-            self.add_new_user(user_name, user_password)
+
+            user_address = input('Enter address: ')
+
+            user_age = input('Enter age: ')
+
+            self.add_new_user(user_name, user_password, user_address, user_age)
             break
 
 # ////////////////////////////////////////////////////////
@@ -378,7 +400,7 @@ class System:
         
         while True:
             print('\n\n\n----------------------------')
-            print('       | Menu | \n\n--- 1 to SEARCH FOR PRODUCT \n--- 2 to PROCEED YOUR SHOPPING CART \n--- 3 to CHARGE YOUR WALLET \n--- 4 to DISPLAY SHOPPING CART \n--- 5 to REMOVE PRODUCT FROM THE SHOPPING LIST \n--- 6 to SHOW YOUR WALLET BALANCE \n--- 7 to LOGOUT')
+            print('       | Menu | \n\n--- 1 to SEARCH FOR PRODUCT \n--- 2 to PROCEED YOUR SHOPPING CART \n--- 3 to CHARGE YOUR WALLET \n--- 4 to DISPLAY SHOPPING CART \n--- 5 to REMOVE PRODUCT FROM THE SHOPPING LIST \n--- 6 to SHOW YOUR WALLET BALANCE \n--- 7 to CHANGE ADDRESS \n--- 8 to LOGOUT')
             print('----------------------------\n')
             user_command = input('>> ')
             
@@ -430,12 +452,19 @@ class System:
                 removed_product_id = input('Enter product id: \n')
                 self.logged_in_user.remove_product(removed_product_id)
 
+            # DISPLAY WALLET
             if int(user_command) == 6:
                 print(f"{self.logged_in_user.wallet_balance:.2f}", '\n\n')
                 continue
 
-            # LOGOUT
+            # UPDATE ADDRESS
             if int(user_command) == 7:
+                new_address = input('Enter new address: \n')
+                self.change_address(new_address)
+                continue
+
+            # LOGOUT
+            if int(user_command) == 8:
                 break
 
 
@@ -520,31 +549,98 @@ class System:
         return matched_user
 
 # ////////////////////////////////////////////////////////
-    
-    def add_new_user(self, user_name : str, user_password : str) -> None:
-        user = User(user_name, user_password, 0, ShoppingCart([]))
+# returns error message, successful if returns null
+    def add_new_user(self, user_name : str, user_password : str, address : str, age : int) -> str:
+        try: 
+            age = int(age)
+
+        except ValueError:
+            print('Age should be number!')
+            return 'Age should be number!'
+
+        if int(age) <= 7:
+            print('Age should be greater than 7')
+            return 'Age should be greater than 7'
+
+        if int(age) >= 120:
+            print('Age should be less than 120')
+            return 'Age should be less than 120'
+
+        error_message = self.check_for_address(address)
+
+        if error_message:
+            print(error_message)
+            return error_message
+
+        user = User(user_name, user_password, 0, ShoppingCart([]), address, age)
         self.users.append(user)
 
         new_user_data = {
         'user_name': user.user_name,
         'user_password': user.user_password,
         'wallet_balance': user.wallet_balance,
-        'shopping_cart_products_id': ','.join([str(product_id) for product_id in user.shopping_cart.products_id])
+        'shopping_cart_products_id': ','.join([str(product_id) for product_id in user.shopping_cart.products_id]),
+        'user_address' : user.user_address,
+        'user_age' : user.user_age
         }
     
         new_user_df = pd.DataFrame([new_user_data])
         new_user_df.to_csv(self.file_name, mode='a', header=False, index=False)
         print(f"Added new user '{user.user_name}' to '{self.file_name}'")
 
+
+# ////////////////////////////////////////////////////////
+
+    def change_address(self, new_address : str) -> str:
+    
+        error_message = self.check_for_address(new_address)
+    
+        if error_message:
+            print(error_message)
+            return
+
+        self.logged_in_user.change_address(new_address)
+    
+        print(f'Address has been updated to {new_address}')
+    
+        
+
+# ////////////////////////////////////////////////////////
+
+#returns error message, if successful message will be null
+    def check_for_address(self, address : str) -> str: 
+        address = str(address).lower()
+
+        new_address = address
+
+        if not new_address:
+            return "Address should not be empty!"
+    
+        parts = new_address.split(",")
+        
+        if len(parts) != 4:
+            return "Address should be in (city, street, alley, house number) format" 
+    
+        if not parts[0].strip():
+            return "City should not be empty!"
+    
+        if not parts[3].strip():
+            return "House number should not be empty"
+
+        # self.user_address = new_address
+
+        # self.__update_users_data_csv()
+
+        return None
 #  -------------------------------------------------------------------------
 
 # Calling Main Functions For Using In Terminal (if you don't want to use UI, uncomment below lines)---------------------------------------------------
 
-# products = read_product_csv('products.csv')
+#products = read_product_csv('products.csv')
 
-# system = System()
+#system = System()
 
-# system.run_system()
+#system.run_system()
 
 
 
@@ -574,21 +670,46 @@ class OnlineShopUI:
 # ////////////////////////////////////////////////////////
 
     def login_screen(self):
+
         self.clear_screen()
 
-        tk.Label(self.root, text="Login", font=("Helvetica", 16)).pack(pady=10)  # Add title
-        tk.Label(self.root, text="User Name").pack()
+        login_frame = tk.Frame(self.root, bg="#F0F0F0", bd=2, relief=tk.GROOVE)
+        login_frame.pack(pady=20, padx=20, fill=tk.BOTH, expand=True)
 
-        self.username_entry = tk.Entry(self.root)
-        self.username_entry.pack()
+        tk.Label(login_frame, text="Login", font=("Helvetica", 18, "bold"), bg="#F0F0F0").pack(pady=10)
 
-        tk.Label(self.root, text="Password").pack()
+        label_style = {"font": ("Helvetica", 14), "bg": "#F0F0F0"}
+        entry_style = {"font": ("Helvetica", 14), "bd": 2, "relief": tk.SUNKEN}
 
-        self.password_entry = tk.Entry(self.root, show='*')
-        self.password_entry.pack()
+        tk.Label(login_frame, text="User Name", **label_style).pack(pady=5)
+        self.username_entry = tk.Entry(login_frame, **entry_style)
+        self.username_entry.pack(pady=5)
 
-        tk.Button(self.root, text="Enter", command=self.login).pack(pady=10)
-        tk.Button(self.root, text="Sign Up", command=self.sign_up_screen).pack()
+        tk.Label(login_frame, text="Password", **label_style).pack(pady=5)
+        self.password_entry = tk.Entry(login_frame, show='*', **entry_style)
+        self.password_entry.pack(pady=5)
+
+        button_style = {"font": ("Helvetica", 14), "bg": "#4CAF50", "fg": "#FFFFFF", "relief": tk.RAISED, "bd": 2, "padx": 10, "pady": 5}
+
+        tk.Button(login_frame, text="Login", command=self.login, **button_style).pack(pady=10)
+        tk.Button(login_frame, text="Sign Up", command=self.sign_up_screen, **button_style).pack(pady=10)
+
+
+        #self.clear_screen()
+
+        #tk.Label(self.root, text="Login", font=("Helvetica", 16)).pack(pady=10)  # Add title
+        #tk.Label(self.root, text="User Name").pack()
+
+        #self.username_entry = tk.Entry(self.root)
+        #self.username_entry.pack()
+
+        #tk.Label(self.root, text="Password").pack()
+
+        #self.password_entry = tk.Entry(self.root, show='*')
+        #self.password_entry.pack()
+
+        #tk.Button(self.root, text="Enter", command=self.login).pack(pady=10)
+        #tk.Button(self.root, text="Sign Up", command=self.sign_up_screen).pack()
 
 # ////////////////////////////////////////////////////////
 
@@ -610,32 +731,81 @@ class OnlineShopUI:
 
     def sign_up_screen(self):
         self.clear_screen()
+        #self.root.geometry("400x400")  # Set window size
 
-        tk.Label(self.root, text="Sign Up", font=("Helvetica", 16)).pack(pady=10)  # Add title
+        sign_up_frame = tk.Frame(self.root, bg="#F0F0F0", bd=2, relief=tk.GROOVE)
+        sign_up_frame.pack(pady=20, padx=20, fill=tk.BOTH, expand=True)
 
-        tk.Label(self.root, text="User Name").pack()
-        self.signup_username_entry = tk.Entry(self.root)
-        self.signup_username_entry.pack()
+        tk.Label(sign_up_frame, text="Sign Up", font=("Helvetica", 18, "bold"), bg="#F0F0F0").pack(pady=10)
 
-        tk.Label(self.root, text="Password").pack()
-        self.signup_password_entry = tk.Entry(self.root, show='*')
-        self.signup_password_entry.pack()
+        label_style = {"font": ("Helvetica", 14), "bg": "#F0F0F0"}
+        entry_style = {"font": ("Helvetica", 14), "bd": 2, "relief": tk.SUNKEN}
 
-        tk.Button(self.root, text="Sign Up", command=self.sign_up).pack(pady=10)
-        tk.Button(self.root, text="Back to Login", command=self.login_screen).pack()
+        tk.Label(sign_up_frame, text="User Name", **label_style).pack(pady=5)
+        self.signup_username_entry = tk.Entry(sign_up_frame, **entry_style)
+        self.signup_username_entry.pack(pady=5)
+
+        tk.Label(sign_up_frame, text="Password", **label_style).pack(pady=5)
+        self.signup_password_entry = tk.Entry(sign_up_frame, show='*', **entry_style)
+        self.signup_password_entry.pack(pady=5)
+
+        tk.Label(sign_up_frame, text="Age", **label_style).pack(pady=5)
+        self.signup_age_entry = tk.Entry(sign_up_frame, **entry_style)
+        self.signup_age_entry.pack(pady=5)
+
+        tk.Label(sign_up_frame, text="Address", **label_style).pack(pady=5)
+        self.signup_address_entry = tk.Entry(sign_up_frame, **entry_style)
+        self.signup_address_entry.pack(pady=5)
+
+        button_style = {"font": ("Helvetica", 14), "bg": "#4CAF50", "fg": "#FFFFFF", "relief": tk.RAISED, "bd": 2, "padx": 10, "pady": 5}
+
+        tk.Button(sign_up_frame, text="Sign Up", command=self.sign_up, **button_style).pack(pady=10)
+        tk.Button(sign_up_frame, text="Back to Login", command=self.login_screen, **button_style).pack(pady=10)
+
+
+        #self.clear_screen()
+
+        #tk.Label(self.root, text="Sign Up", font=("Helvetica", 16)).pack(pady=10)  # Add title
+
+        #tk.Label(self.root, text="User Name").pack()
+        #self.signup_username_entry = tk.Entry(self.root)
+        #self.signup_username_entry.pack()
+
+        #tk.Label(self.root, text="Password").pack()
+        #self.signup_password_entry = tk.Entry(self.root, show='*')
+        #self.signup_password_entry.pack()
+
+        #tk.Label(self.root, text="Age").pack()
+        #self.signup_age_entry = tk.Entry(self.root)
+        #self.signup_age_entry.pack()
+
+        #tk.Label(self.root, text="Address").pack()
+        #self.signup_address_entry = tk.Entry(self.root)
+        #self.signup_address_entry.pack()
+
+        #tk.Button(self.root, text="Sign Up", command=self.sign_up).pack(pady=10)
+        #tk.Button(self.root, text="Back to Login", command=self.login_screen).pack()
 
 # ////////////////////////////////////////////////////////
 
     def sign_up(self):
         username = self.signup_username_entry.get()
         password = self.signup_password_entry.get()
+        age = self.signup_age_entry.get()
+        address = self.signup_address_entry.get()
 
         if self.system.check_user_name_availability(username):
             messagebox.showerror("Error", "Username already exists")
-        else:
-            self.system.add_new_user(username, password)
+        
+        if not self.system.add_new_user(username, password, address, age): # if does not show error message (successful)
             messagebox.showinfo("Success", "User signed up successfully")
-            self.login_screen()
+            
+        else:
+           messagebox.showerror("Error", self.system.add_new_user(username, password, address, age))
+
+            
+
+        self.login_screen()
 
 # ////////////////////////////////////////////////////////
 
@@ -655,7 +825,39 @@ class OnlineShopUI:
         tk.Button(menu_frame, text="Display Shopping Cart", command=self.display_cart, **button_style).pack(pady=5)
         tk.Button(menu_frame, text="Remove Product from Cart", command=self.remove_product_screen, **button_style).pack(pady=5)
         tk.Button(menu_frame, text="Show Wallet Balance", command=self.show_wallet_balance_screen, **button_style).pack(pady=5)
+        tk.Button(menu_frame, text="Update Address", command=self.update_user_address_screen, **button_style).pack(pady=5)
         tk.Button(menu_frame, text="Logout", command=self.logout, **button_style).pack(pady=5)
+
+# ////////////////////////////////////////////////////////
+
+    def update_user_address_screen(self):
+        self.clear_screen()
+
+        # Create a frame for updating address screen
+        update_frame = tk.Frame(self.root, bg="#F0F0F0", bd=2, relief=tk.GROOVE)
+        update_frame.pack(pady=20, padx=20, fill=tk.BOTH, expand=True)
+
+        tk.Label(update_frame, text="Update Address", font=("Helvetica", 16)).pack(pady=10)
+
+        tk.Label(update_frame, text="New Address", font=("Helvetica", 14), bg="#F0F0F0").pack(pady=5)
+        self.new_address_entry = tk.Entry(update_frame, font=("Helvetica", 14), bd=2, relief=tk.SUNKEN)
+        self.new_address_entry.pack(pady=5)
+
+        button_style = {"font": ("Helvetica", 14), "bg": "#4CAF50", "fg": "#FFFFFF", "relief": tk.RAISED, "bd": 2, "padx": 10, "pady": 5}
+
+        tk.Button(update_frame, text="Update", command=self.update_user_address, **button_style).pack(pady=10)
+        tk.Button(update_frame, text="Back", command=self.logged_in_menu, **button_style).pack(pady=10)
+
+# ////////////////////////////////////////////////////////
+
+    def update_user_address(self):
+        new_address = self.new_address_entry.get()
+        if new_address:
+            self.system.logged_in_user.change_address(new_address)
+            messagebox.showinfo("Success", "Address updated successfully")
+            self.logged_in_menu()
+        else:
+            messagebox.showerror("Error", "Please enter a new address")
 
 # ////////////////////////////////////////////////////////
 
@@ -713,7 +915,6 @@ class OnlineShopUI:
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
         tk.Button(search_frame, text="Back", command=self.logged_in_menu, **button_style).pack(pady=10)
-
 
 # ////////////////////////////////////////////////////////
 
